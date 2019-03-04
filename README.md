@@ -1,2 +1,2 @@
-# mcafee-dxl-schemas
-A repository that contains DXL schemas for McAfee-based products
+# McAfee DXL Schemas
+This repository is comprised of DXL schemas for Mcafee-related products
