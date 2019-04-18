@@ -1,0 +1,334 @@
+---
+openDxlApi: '0.1'
+info:
+  title: McAfee ePolicy Orchestrator (ePO)
+  version: '0.1'
+  description: McAfee® ePolicy Orchestrator (ePO) provides a centralized management
+    console that simplifies and accelerates security effectiveness.
+  contact:
+    url: https://www.mcafee.com/
+solutions:
+  ePO Server:
+    info:
+      title: ePO Server
+      version: 5.10.0
+    externalDocs:
+      url: https://www.mcafee.com/enterprise/en-us/products/epolicy-orchestrator.html
+    services:
+    - "$ref": "#/services/McAfee ePO Service"
+    events: []
+services:
+  McAfee ePO Remote Command Service:
+    info:
+      title: McAfee ePO Remote Command Service
+      version: 2.3.0
+      description: DXL service hosted by the McAfee ePO Server. The MAR Search topic
+        operates similarly to a RESTful API, and supports multiple request formats.
+        As such, the definition of the Request/Response supported by '/mcafee/mar/service/api/search'
+        is split into several subsections.
+    requests:
+    - "$ref": "#/requests/~1mcafee~1service~1epo~1remote~1<ePO GUID>"
+    metadata: {}
+events:
+  "/mcafee/event/epo/threat/response":
+    description: Threat Events are sent via predefined rules configured on the ePO
+      Server. These can be found under 'Automation' > 'Automatic Responses' on the
+      ePO Server Console. The available fields for the payload are configured in this
+      same location.
+    payload:
+      type: object
+      properties:
+        event:
+          description: Object containing including sub-member property sets, as well
+            as general threat event information.
+          type: object
+          properties:
+            analyzer:
+              "$ref": "#/definitions/Analyzer Object"
+            category:
+              description: The category of the threat event.
+              type: string
+            entity:
+              "$ref": "#/definitions/Entity Object"
+            eventDesc:
+              description: The description of the threat event.
+              type: string
+            files:
+              description: The member name for the files data, which contains the
+                properties of each file.
+              type: array
+              items:
+                "$ref": "#/definitions/File Object"
+            id:
+              description: 'External ID designated for the event. (Example: The Windows
+                Event ID (''10016'')'
+              type: integer
+            otherData:
+              description: Object containing additional data selected by the threat
+                event sender.
+              type: object
+              additionalProperties: {}
+            source:
+              "$ref": "#/definitions/Source Object"
+            target:
+              "$ref": "#/definitions/Target Object"
+            threatActionTaken:
+              description: Action taken as part of the threat event.
+              type: string
+            threatHandled:
+              description: Indicates whether the threat was handled or not. If the
+                event is not threat oriented, set to null.
+              type: integer
+            threatName:
+              description: Name of this threat, such as a virus, a firewall rule name,
+                etc.
+              type: string
+            threatSeverity:
+              description: 'Severity of the event instance on a numeric scale: (Highest
+                Severity) 1 - 7 (Lowest Severity)'
+              type: integer
+            threatType:
+              description: Analyzer-dependent classification of the event type.
+              type: string
+            uri:
+              description: URI pointing to data source.
+              type: string
+        eventMessageType:
+          description: Threat message type.
+          type: string
+        eventMessageVersion:
+          description: Threat message version.
+          type: string
+      example:
+        event:
+          analyzer:
+            contentVersion: ''
+            detectedUTC: '2016-12-13T22:18:34.000Z'
+            detectionMethod: Exploit Prevention
+            engineVersion: ''
+            hostName: SAMPLE-HOSTNAME
+            id: ENDP_AM_1020
+            ipv4: 10.0.0.10
+            ipv6: 0:0:0:0:0:FFFF:0A00:0010
+            mac: '001122334455'
+            name: McAfee Endpoint Security
+            version: 10.5.0
+          category: Host intrusion buffer overflow
+          entity:
+            groupName:
+            id: 11111111-2222-3333-4444-555555555555
+            osPlatform: Workstation
+            osType: Windows 7
+            ruleName:
+            sessionId:
+            type: device
+          eventDesc: Buffer Overflow detected and blocked (GBOP)
+          files: []
+          id: 18052
+          otherData:
+            count: '1'
+            definedAt: My Organization
+            responseEventType: Threat
+            responseRuleName: Send Threat Event via DXL
+            threatSeverityString: Critical
+          source:
+            hostName: ''
+            ipv4: 10.0.0.10
+            ipv6: 0:0:0:0:0:FFFF:0A00:0010
+            mac: ''
+            port:
+            processName: ''
+            url: ''
+            userName: ''
+          target:
+            fileName: C:\DAC\IEXPLORE.EXE
+            hostName: SAMPLE-HOSTNAME
+            ipv4: 10.0.0.10
+            ipv6: 0:0:0:0:0:FFFF:0A00:0010
+            mac: ''
+            port: 0
+            processName: IEXPLORE.EXE
+            protocol: ''
+            userName: SAMPLE-HOSTNAME\Administrator
+          threatActionTaken: blocked
+          threatHandled: 1
+          threatName: ExP:Heap
+          threatSeverity: 2
+          threatType: Exploit Prevention
+          uri:
+        eventMessageType: McAfee Common Event
+        eventMessageVersion: '1.0'
+requests:
+  "/mcafee/service/epo/remote/<ePO GUID>":
+    description: Request containing ePO remote command and parameters to be sent to
+      the ePO Server specified by the ePO GUID in the topic.
+    payload:
+      type: object
+      properties:
+        command:
+          description: 'The name of the ePO remote command to run. (Example: ''core.help'',
+            or ''system.find'')'
+          type: string
+        output:
+          description: 'Output format for the response. (Supported formats: ''json'',
+            ''xml'', ''verbose'', ''terse'')'
+          type: string
+        params:
+          description: Map of parameters for the remote command. Expected/required
+            parameters vary based on the command being sent.
+          type: object
+      example:
+        command: system.find
+        output: json
+        params:
+          searchText: broker
+    response:
+      description: The ePO remote command response, in the specified format. The structure/format
+        of this payload has no required structure and is entirely dependent on the
+        remote command issued. If the command does not return a response, this payload
+        will be empty.
+      payload:
+        example:
+        - EPOBranchNode.AutoID: 3
+          EPOComputerProperties.CPUSerialNumber: N/A
+          EPOComputerProperties.CPUSpeed: 2194
+          EPOComputerProperties.CPUType: Intel(R) Xeon(R) CPU E5-2699 v4 @ 2.20GHz
+          EPOComputerProperties.ComputerDescription: N/A
+          EPOComputerProperties.ComputerName: test-broker-1
+          EPOComputerProperties.DefaultLangID: 0409
+          EPOComputerProperties.Description:
+          EPOLeafNode.Tags: DXLBROKER, Server
+        - EPOBranchNode.AutoID: 3
+          EPOComputerProperties.CPUSerialNumber: N/A
+          EPOComputerProperties.CPUSpeed: 2194
+          EPOComputerProperties.CPUType: Intel(R) Xeon(R) CPU E5-2699 v4 @ 2.20GHz
+          EPOComputerProperties.ComputerDescription: N/A
+          EPOComputerProperties.ComputerName: test-broker-2
+          EPOComputerProperties.DefaultLangID: 0409
+          EPOComputerProperties.Description:
+          EPOLeafNode.Tags: DXLBROKER, Server
+definitions:
+  Analyzer Object:
+    description: A set of properties pertaining to the analyzer used for the threat
+      event.
+    type: object
+    properties:
+      contentVersion:
+        description: Analyzer content version.
+        type: string
+      detectedUTC:
+        description: The date/time when the analyzer detected this event.
+        type: date-time
+      detectionMethod:
+        description: Detection method used by the analyzer for this event.
+        type: string
+      engineVersion:
+        description: Analyzer engine version.
+        type: string
+      hostName:
+        description: Network host name of the machine, including domain prefix as
+          needed.
+        type: string
+      id:
+        description: The ID software/hardware generating this event. This is analogous
+          to the ePO traditional SoftwareID or ProductCode.
+        type: string
+      ipv4:
+        description: The 32-bit IPv4 address of the analyzer.
+        type: string
+      ipv6:
+        description: The 128-bit IPv6 address of the analyzer.
+        type: string
+      mac:
+        description: The MAC address of the analyzer.
+        type: string
+      name:
+        description: The product name as a string.
+        type: string
+      version:
+        description: Version string of the analyzer.
+        type: string
+  Entity Object:
+    description: A set of properties pertaining to the entity identified for the threat
+      event.
+    type: object
+    properties:
+      groupName:
+        description: The group name to which this entity belongs.
+        type: string
+      id:
+        description: 'A unique Id referencing this entity. Example: AgentGUID, user
+          SID.'
+        type: string
+      osPlatform:
+        description: Entity operating system platform.
+        type: string
+      osType:
+        description: Entity operating system.
+        type: string
+      nodeTextPath:
+        description: Entity's location in the ePO system tree.
+        type: string
+      ruleName:
+        description: FW / IPS / Threat Protection rule name, etc.
+        type: string
+      sessionId:
+        description: Entity session ID.
+        type: string
+      type:
+        description: Type of entity.
+        type: string
+  File Object:
+    description: Properties for files referenced in threat events.
+    type: object
+    properties:
+      name:
+        description: The threat target filename where applicable.
+        type: string
+      hash:
+        description: 'Member name for the hash data, which contains properties with
+          provided hashes of the file. '
+        type: string
+  Source Object:
+    description: A set of properties pertaining to the source of the threat event.
+    allOf:
+    - "$ref": "#/definitions/System Properties"
+    - properties:
+        url:
+          description: The threat source URL if detectable.
+          type: string
+  Target Object:
+    description: A set of properties pertaining to the target of the threat event.
+    allOf:
+    - "$ref": "#/definitions/System Properties"
+    - properties:
+        fileName:
+          description: Target file name.
+          type: string
+        protocol:
+          description: The threat target protocol for network-homed threat classes.
+          type: string
+  System Properties:
+    type: object
+    properties:
+      hostName:
+        description: 'The system host name (where applicable). '
+        type: string
+      ipv4:
+        description: The system's 32-bit IPv4 address.
+        type: string
+      ipv6:
+        description: The system's 128-bit IPv6 address.
+        type: string
+      mac:
+        description: The system MAC address (where applicable).
+        type: string
+      port:
+        description: The system port for network-homed threat classes.
+        type: string
+      processName:
+        description: The process name if detectable.
+        type: string
+      userName:
+        description: The specified user name or email address.
+        type: string
